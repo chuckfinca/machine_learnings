@@ -1,3 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://chuckfinca.github.io/machine_learnings/index.html</loc>
+    <lastmod>2024-08-28T20:15:57.579Z</lastmod>
+  </url>
+  <url>
+    <loc>https://chuckfinca.github.io/machine_learnings/posts/new-post/index.html</loc>
+    <lastmod>2024-08-28T19:51:56.094Z</lastmod>
+  </url>
+  <url>
+    <loc>https://chuckfinca.github.io/machine_learnings/posts/newest-post/index.html</loc>
+    <lastmod>2024-08-28T20:12:59.545Z</lastmod>
+  </url>
+  <url>
+    <loc>https://chuckfinca.github.io/machine_learnings/posts/newer-post/index.html</loc>
+    <lastmod>2024-08-28T19:52:52.071Z</lastmod>
+  </url>
 </urlset>
