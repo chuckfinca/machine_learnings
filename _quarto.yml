@@ -1,3 +1,8 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: _site
+
+website:
+  title: "Machine Learnings"
+  description: "notes from my explorations in machine learning"
+  repo-url: https://github.com/chuckfinca/machine_learnings
