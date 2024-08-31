@@ -1,7 +1,6 @@
 project:
   type: website
   output-dir: _site
-
 website:
   title: "Machine Learnings"
   description: "notes from my explorations in machine learning"
