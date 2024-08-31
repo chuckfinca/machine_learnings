@@ -133,6 +133,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<p>Notebook: https://github.com/chuckfinca/machine_learnings/blob/main/posts/evaluating-metas-llama-3-1-8b-instruct-on-mmlu/index.ipynb<br>
+Evaluation Framework: https://github.com/chuckfinca/evaluate</p>
 <section id="preface" class="level2">
 <h2 class="anchored" data-anchor-id="preface">Preface</h2>
 <p>I recently participated in the original cohort of Dan Becker and Hamel Husain’s Mastering LLMs: A Conference For Developers &amp; Data Scientists. I eagerly sopped up every video, hungry for lessons from the experts at the cutting edge of the field.</p>
@@ -149,10 +151,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>To download our model we will use the Hugging Face Hub. This means that we will need to get and set a Hugging Face token to use in this project. Instructions for how to go about it can be found <a href="https://https://huggingface.co/docs/huggingface_hub/v0.23.3/en/quick-start">here</a>.</p>
 <p>Once we have our HF_TOKEN saved to our Google Colab secrets we can install and setup the Hugging Face Hub.</p>
-<div id="cell-8" class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-outputid="268de327-165e-4dce-aee3-6bfd44e41ba8">
+<div id="cell-9" class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-outputid="268de327-165e-4dce-aee3-6bfd44e41ba8">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install huggingface_hub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-9" class="cell" data-execution_count="2">
+<div id="cell-10" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Colab Secrets userdata module</span></span>
@@ -168,7 +170,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>My thinking was that if I could make it easy to run any model on any benchmark then I could use that framework in a pipeline that ran models through sets of existing and custom benchmarks alike.</p>
 <p>The framework uses an orchestrator pattern in which a benchmark specific orchestrator class (e.g.&nbsp;MMLUBenchmarkOrchestrator) facilitates the evaluation of a model on a benchmark.</p>
 <p>The heart of the MMLUBenchmarkOrchestrator is its subject evaluation function:</p>
-<div id="cell-12" class="cell">
+<div id="cell-13" class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -209,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Calculates accuracy for the subject</li>
 </ol>
 <p>To see all this in action let’s import the project now:</p>
-<div id="cell-14" class="cell" data-outputid="3ebe4085-e957-4f6c-c90a-c6c323217142" data-execution_count="5">
+<div id="cell-15" class="cell" data-outputid="3ebe4085-e957-4f6c-c90a-c6c323217142" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>git clone https:<span class="op">//</span>github.com<span class="op">/</span>chuckfinca<span class="op">/</span>evaluate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Cloning into 'evaluate'...
@@ -222,7 +224,7 @@ Resolving deltas: 100% (150/150), done.</code></pre>
 </div>
 </div>
 <p>The project has one dependency, so let’s import that:</p>
-<div id="cell-16" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
+<div id="cell-17" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install python<span class="op">-</span>dotenv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Collecting python-dotenv
@@ -247,7 +249,7 @@ Successfully installed python-dotenv-1.0.1</code></pre>
 <p>The framework is also setup to use the CPU if cuda is not available. This worked on my local machine, but was too slow to be of any practical use.</p>
 </blockquote>
 <p>Enough of that, let’s see the results!</p>
-<div id="cell-20" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
+<div id="cell-21" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python evaluate<span class="op">/</span>evaluate<span class="op">/</span>main.py <span class="op">--</span>benchmark mmlu <span class="op">--</span>model meta<span class="op">-</span>llama<span class="op">/</span>Meta<span class="op">-</span>Llama<span class="op">-</span><span class="fl">3.1</span><span class="op">-</span><span class="dv">8</span><span class="er">B</span><span class="op">-</span>Instruct <span class="op">--</span>nshot <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Benchmark 'mmlu' has been set up successfully.
@@ -323,7 +325,7 @@ Average accuracy: 66.600</code></pre>
 <p><strong>Et voila!</strong> We have our score.</p>
 <p>Not what Meta reported, but not that far off either. I’ll leave the discrepancy for future posts :)</p>
 <p>To wrap up, let’s create a way to visualize our findings:</p>
-<div id="cell-22" class="cell" data-outputid="fb56c6d6-9cf8-4db5-f51f-fcd038aa3174">
+<div id="cell-23" class="cell" data-outputid="fb56c6d6-9cf8-4db5-f51f-fcd038aa3174">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model_name <span class="op">=</span> <span class="st">"meta-llama/Meta-Llama-3.1-8B-Instruct"</span> <span class="co">#"google/gemma-2b-it" #</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>score_file <span class="op">=</span> os.path.join(os.getcwd(),<span class="st">'evaluate'</span>, <span class="st">'evaluate'</span>, <span class="st">'benchmarks'</span>, <span class="st">'benchmarks'</span>, <span class="st">'mmlu'</span>, <span class="st">'results'</span>, model_name, <span class="st">"mmlu_score.txt"</span>)</span>
@@ -334,7 +336,7 @@ Average accuracy: 66.600</code></pre>
 <pre><code>66.600</code></pre>
 </div>
 </div>
-<div id="cell-23" class="cell" data-execution_count="9">
+<div id="cell-24" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -384,7 +386,7 @@ Average accuracy: 66.600</code></pre>
 <span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-24" class="cell" data-outputid="e59293c4-3315-480e-c3e0-3a84ec610c4b" data-execution_count="10">
+<div id="cell-25" class="cell" data-outputid="e59293c4-3315-480e-c3e0-3a84ec610c4b" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> create_mmlu_comparison_chart(realized_score<span class="op">=</span>score, reported_score<span class="op">=</span><span class="fl">73.0</span>, model_name<span class="op">=</span>model_name)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fig.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -395,6 +397,7 @@ Average accuracy: 66.600</code></pre>
 </div>
 </div>
 </div>
+<p>Thanks for following along! If you’ve got a questions or comment please feel free to email me at <code>chuckfinca at google dot com</code>.</p>
 
 
 </section>
