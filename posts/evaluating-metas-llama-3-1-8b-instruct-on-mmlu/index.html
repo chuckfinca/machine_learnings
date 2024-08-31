@@ -6,8 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Charles Feinn">
+<meta name="dcterms.date" content="2024-08-31">
+<meta name="description" content="Evaluating Meta’s Llama 3.1 8B Instruct on MMLU">
 
-<title>Evaluating Meta’s Llama 3.1 8B Instruct on MMLU – Machine Learnings</title>
+<title>Creating an Evaluation Framework – Machine Learnings</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -116,14 +119,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Evaluating Meta’s Llama 3.1 8B Instruct on MMLU</h1>
-</div>
+<h1 class="title">Creating an Evaluation Framework</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">evaluations</div>
+    <div class="quarto-category">llms</div>
+  </div>
+  </div>
 
+<div>
+  <div class="description">
+    Evaluating Meta’s Llama 3.1 8B Instruct on MMLU
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Charles Feinn </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 31, 2024</p>
+    </div>
+  </div>
   
     
   </div>
@@ -136,24 +160,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Here are links to the <a href="https://github.com/chuckfinca/machine_learnings/blob/main/posts/evaluating-metas-llama-3-1-8b-instruct-on-mmlu/index.ipynb">notebook</a> and <a href="https://github.com/chuckfinca/evaluate">evaluation framework</a> for this post.</p>
 <section id="preface" class="level2">
 <h2 class="anchored" data-anchor-id="preface">Preface</h2>
-<p>I recently participated in the original cohort of Dan Becker and Hamel Husain’s Mastering LLMs: A Conference For Developers &amp; Data Scientists. I eagerly sopped up every video, hungry for lessons from the experts at the cutting edge of the field.</p>
+<p>I recently participated in the original cohort of Dan Becker and Hamel Husain’s <em>Mastering LLMs: A Conference For Developers &amp; Data Scientists</em>. I eagerly sopped up every video, hungry for lessons from the experts at the cutting edge of the field.</p>
 <p>After the course I felt I had gained a huge amount of knowledge, but I hadn’t gotten my hands dirty, yet. This blog is to change that.</p>
 <p>Evaluations, which almost every speaker emphasized as being one of, if not the most, important piece of the LLM pipeline puzzle, seemed like a good place to start.</p>
-<p>So, project number one: Create an evaluation framework to run models on benchmarks. To simplify things further I decided to focus on Meta’s Llama 3.1 8B Instruct model and the MMLU benchmark.</p>
-<p>And, to spice things up a bit, I decided to attempt to reproduce Meta’s <a href="https://ai.meta.com/blog/meta-llama-3-1/#:~:text=of%20partner%20platforms.-,Model,-evaluations">stated score</a> of 73.0 for Llama 3.1 8B.</p>
+<p>So, project number one: Create an evaluation framework to run models on benchmarks. To simplify things I decided to focus on Meta’s Llama 3.1 8B Instruct model and the MMLU benchmark.</p>
 </section>
 <section id="gear" class="level2">
 <h2 class="anchored" data-anchor-id="gear">Gear</h2>
-<p>I use an Intel based Macbook Pro running VSCode, Google Colab, terminal, and the occasional use of basic Jupyter Notebooks. I also used a Claude 3.5 Sonnet Project in its web interface to assist my thoughts and code.</p>
+<ul>
+<li>Intel-based Macbook Pro (2019)<br>
+</li>
+<li>VSCode<br>
+</li>
+<li>Google Colab<br>
+</li>
+<li>Terminal (home brew theme)<br>
+</li>
+<li>Jupyter Notebooks</li>
+</ul>
+<p>I also used a Claude 3.5 Sonnet Project in its web interface to assist my thoughts and code.</p>
 </section>
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>To download our model we will use the Hugging Face Hub. This means that we will need to get and set a Hugging Face token to use in this project. Instructions for how to go about it can be found <a href="https://https://huggingface.co/docs/huggingface_hub/v0.23.3/en/quick-start">here</a>.</p>
 <p>Once we have our HF_TOKEN saved to our Google Colab secrets we can install and setup the Hugging Face Hub.</p>
-<div id="cell-9" class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-outputid="268de327-165e-4dce-aee3-6bfd44e41ba8">
+<div id="cell-8" class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-outputid="268de327-165e-4dce-aee3-6bfd44e41ba8">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install huggingface_hub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-10" class="cell" data-execution_count="2">
+<div id="cell-9" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Colab Secrets userdata module</span></span>
@@ -169,7 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>My thinking was that if I could make it easy to run any model on any benchmark then I could use that framework in a pipeline that ran models through sets of existing and custom benchmarks alike.</p>
 <p>The framework uses an orchestrator pattern in which a benchmark specific orchestrator class (e.g.&nbsp;MMLUBenchmarkOrchestrator) facilitates the evaluation of a model on a benchmark.</p>
 <p>The heart of the MMLUBenchmarkOrchestrator is its subject evaluation function:</p>
-<div id="cell-13" class="cell">
+<div id="cell-12" class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -210,7 +244,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Calculates accuracy for the subject</li>
 </ol>
 <p>To see all this in action let’s import the project now:</p>
-<div id="cell-15" class="cell" data-outputid="3ebe4085-e957-4f6c-c90a-c6c323217142" data-execution_count="5">
+<div id="cell-14" class="cell" data-outputid="3ebe4085-e957-4f6c-c90a-c6c323217142" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>git clone https:<span class="op">//</span>github.com<span class="op">/</span>chuckfinca<span class="op">/</span>evaluate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Cloning into 'evaluate'...
@@ -223,7 +257,7 @@ Resolving deltas: 100% (150/150), done.</code></pre>
 </div>
 </div>
 <p>The project has one dependency, so let’s import that:</p>
-<div id="cell-17" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
+<div id="cell-16" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install python<span class="op">-</span>dotenv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Collecting python-dotenv
@@ -233,12 +267,21 @@ Installing collected packages: python-dotenv
 Successfully installed python-dotenv-1.0.1</code></pre>
 </div>
 </div>
-<p>Note: At some point I intend to make my evaluation framework into a python package in order to simplify some of this, but we’ll save that work for a later date.</p>
+<p><strong><em>NOTE</em></strong>: At some point I intend to make my evaluation framework into a python package in order to simplify some of this, but we’ll save that work for a later date.</p>
 </section>
-<section id="putting-it-all-together" class="level2">
-<h2 class="anchored" data-anchor-id="putting-it-all-together">Putting it all together</h2>
-<p>Now that we’ve got our evaluation framework ready to go let’s see if we can reproduce <a href="https://ai.meta.com/blog/meta-llama-3-1/#:~:text=of%20partner%20platforms.-,Model,-evaluations">Meta’s stated score</a> of 73.0 for Llama 3.1 8B!</p>
+<section id="evaluating-llama" class="level2">
+<h2 class="anchored" data-anchor-id="evaluating-llama">Evaluating Llama</h2>
+<p>Now that we’ve got our evaluation framework ready to go we might as well spice things up! Let’s see if we can reproduce <a href="https://ai.meta.com/blog/meta-llama-3-1/#:~:text=of%20partner%20platforms.-,Model,-evaluations">Meta’s stated MMLU score</a> of 73.0 for Llama 3.1 8B!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://scontent-sjc3-1.xx.fbcdn.net/v/t39.2365-6/452673884_1646111879501055_1352920258421649752_n.png?_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=e280be&amp;_nc_ohc=6j4zNvQHK_IQ7kNvgELs0sM&amp;_nc_ht=scontent-sjc3-1.xx&amp;oh=00_AYAIywC88BVcCAYMW5Tfs7zBMqJr2TQd_e7zcWaUt-rm-Q&amp;oe=66EDDF68" class="img-fluid figure-img"></p>
+<figcaption>image</figcaption>
+</figure>
+</div>
 <p>I haven’t yet been able to find a source in Meta’s documentation that states that they used the Instruct version of their models for benchmarking, but I believe this is common practice and so I chose to use the <code>Meta-Llama-3.1-8B-Instruct</code> model in my experiment.</p>
+</section>
+<section id="running-our-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="running-our-evaluation">Running our evaluation</h2>
 <p>To run our script we just need to supply a few things. Our benchmark and model name, and the type of few-shot learning we want to use.</p>
 <p>In their blog post, Meta states that they used 0-shot (COT) to generate their 73.0 score on MMLU. To keep things uniform we will use 0 shot learning. COT (aka. chain-of-thought) is beyond the scope of this post, so we’ll leave that be for now.</p>
 <blockquote class="blockquote">
@@ -248,7 +291,7 @@ Successfully installed python-dotenv-1.0.1</code></pre>
 <p>The framework is also setup to use the CPU if cuda is not available. This worked on my local machine, but was too slow to be of any practical use.</p>
 </blockquote>
 <p>Enough of that, let’s see the results!</p>
-<div id="cell-21" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
+<div id="cell-22" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python evaluate<span class="op">/</span>evaluate<span class="op">/</span>main.py <span class="op">--</span>benchmark mmlu <span class="op">--</span>model meta<span class="op">-</span>llama<span class="op">/</span>Meta<span class="op">-</span>Llama<span class="op">-</span><span class="fl">3.1</span><span class="op">-</span><span class="dv">8</span><span class="er">B</span><span class="op">-</span>Instruct <span class="op">--</span>nshot <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Benchmark 'mmlu' has been set up successfully.
