@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://chuckfinca.github.io/machine_learnings/index.html</loc>
-    <lastmod>2024-08-28T20:15:57.579Z</lastmod>
+    <loc>https://chuckfinca.github.io/machine_learnings/about.html</loc>
+    <lastmod>2024-08-28T19:37:08.018Z</lastmod>
   </url>
   <url>
-    <loc>https://chuckfinca.github.io/machine_learnings/posts/evaluating-metas-llama-3-1-8b-instruct-on-mmlu/index.html</loc>
-    <lastmod>2024-08-31T23:33:15.056Z</lastmod>
+    <loc>https://chuckfinca.github.io/machine_learnings/posts/24-08-31-creating-an-evaluation-framework/index.html</loc>
+    <lastmod>2024-09-01T02:07:41.483Z</lastmod>
+  </url>
+  <url>
+    <loc>https://chuckfinca.github.io/machine_learnings/index.html</loc>
+    <lastmod>2024-08-28T20:15:57.579Z</lastmod>
   </url>
 </urlset>
