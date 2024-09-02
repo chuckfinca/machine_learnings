@@ -1,20 +1,22 @@
 ---
 title: "About"
-image: profile.jpg
 about:
   template: jolla
   links:
-    - icon: twitter
-      text: Twitter
-      href: https://twitter.com/mcbwrs
-    - icon: linkedin
-      text: LinkedIn
-      href: https://linkedin.com/in/matt-bowers/
     - icon: github
+      href: https://github.com/chuckfinca
       text: Github
-      href: https://github.com/mcb00
+    - icon: linkedin
+      href: https://www.linkedin.com/in/charlesfeinn
+      text: Linkedin
+    - icon: twitter
+      href: https://twitter.com/dynamics
+      text: Twitter
 
 ---
 
+I recently participated in the original cohort of Dan Becker and Hamel Husain's _Mastering LLMs: A Conference For Developers & Data Scientists_. I eagerly sopped up every video, hungry for lessons from the experts at the cutting edge of the field.
 
-Welcome to Machine Learnings!
+After the course I felt I had gained a huge amount of knowledge, but I hadn't gotten my hands dirty, yet.
+
+This blog is to change that.
