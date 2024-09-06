@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Charles Feinn">
-<meta name="dcterms.date" content="2024-08-31">
+<meta name="dcterms.date" content="2024-09-02">
 <meta name="description" content="Building out a framework that takes a model and a benchmark as input and returns the score as output.">
 
 <title>Creating an Evaluation Framework – Machine Learnings</title>
@@ -177,7 +177,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">August 31, 2024</p>
+      <p class="date">September 2, 2024</p>
     </div>
   </div>
   
@@ -295,9 +295,14 @@ Receiving objects: 100% (261/261), 36.00 KiB | 18.00 MiB/s, done.
 Resolving deltas: 100% (150/150), done.</code></pre>
 </div>
 </div>
+<p>Now let’s install that so we can use it as a package.</p>
+<div id="cell-18" class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install .<span class="op">/</span>evaluate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong><em>NOTE</em></strong>: At some point I intend to make my evaluation framework into a python package in order to simplify some of this, but we’ll save that work for a later date.</p>
 <p>The project has one dependency, so let’s import that:</p>
-<div id="cell-18" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install python<span class="op">-</span>dotenv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-20" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install python<span class="op">-</span>dotenv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Collecting python-dotenv
   Downloading python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
@@ -306,7 +311,6 @@ Installing collected packages: python-dotenv
 Successfully installed python-dotenv-1.0.1</code></pre>
 </div>
 </div>
-<p><strong><em>NOTE</em></strong>: At some point I intend to make my evaluation framework into a python package in order to simplify some of this, but we’ll save that work for a later date.</p>
 </section>
 <section id="evaluating-llama" class="level2">
 <h2 class="anchored" data-anchor-id="evaluating-llama">Evaluating Llama</h2>
@@ -330,8 +334,8 @@ Successfully installed python-dotenv-1.0.1</code></pre>
 <p>The framework is also setup to use the CPU if cuda is not available. This worked on my local machine, but was too slow to be of any practical use.</p>
 </blockquote>
 <p>Enough of that, let’s see the results!</p>
-<div id="cell-24" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python evaluate<span class="op">/</span>evaluate<span class="op">/</span>main.py <span class="op">--</span>benchmark mmlu <span class="op">--</span>model meta<span class="op">-</span>llama<span class="op">/</span>Meta<span class="op">-</span>Llama<span class="op">-</span><span class="fl">3.1</span><span class="op">-</span><span class="dv">8</span><span class="er">B</span><span class="op">-</span>Instruct <span class="op">--</span>nshot <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-25" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python evaluate<span class="op">/</span>evaluate<span class="op">/</span>main.py <span class="op">--</span>benchmark mmlu <span class="op">--</span>model meta<span class="op">-</span>llama<span class="op">/</span>Meta<span class="op">-</span>Llama<span class="op">-</span><span class="fl">3.1</span><span class="op">-</span><span class="dv">8</span><span class="er">B</span><span class="op">-</span>Instruct <span class="op">--</span>nshot <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Benchmark 'mmlu' has been set up successfully.
 Running evaluation 'mmlu' with:
