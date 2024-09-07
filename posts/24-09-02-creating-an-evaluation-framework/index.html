@@ -282,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Predicts answers based on highest probability</li>
 <li>Calculates accuracy for the subject</li>
 </ol>
-<p>To see all this in action let’s import the project now:</p>
+<p>To see all this in action let’s import the project:</p>
 <div id="cell-16" class="cell" data-outputid="3ebe4085-e957-4f6c-c90a-c6c323217142" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>git clone https:<span class="op">//</span>github.com<span class="op">/</span>chuckfinca<span class="op">/</span>evaluate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -295,9 +295,9 @@ Receiving objects: 100% (261/261), 36.00 KiB | 18.00 MiB/s, done.
 Resolving deltas: 100% (150/150), done.</code></pre>
 </div>
 </div>
-<p>Now let’s install that so we can use it as a package.</p>
+<p>Now let’s check out the right commit to make sure everything works as expected.</p>
 <div id="cell-18" class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install .<span class="op">/</span>evaluate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>git checkout <span class="dv">24</span><span class="op">-</span><span class="dv">0</span><span class="er">9</span><span class="op">-</span><span class="dv">0</span><span class="er">2</span><span class="op">-</span>creating<span class="op">-</span>an<span class="op">-</span>evaluation<span class="op">-</span>framework</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong><em>NOTE</em></strong>: At some point I intend to make my evaluation framework into a python package in order to simplify some of this, but we’ll save that work for a later date.</p>
 <p>The project has one dependency, so let’s import that:</p>
