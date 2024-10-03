@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Charles Feinn">
+<meta name="dcterms.date" content="2024-10-03">
+<meta name="description" content="A Case Study with MMLU and Llama 3">
+
+<title>Challenges in Reproducing LLM Evaluation Results – Machine Learnings</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../logo.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Machine Learnings</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/chuckfinca" title="Charles on Github" class="quarto-navigation-tool px-1" aria-label="Charles on Github"><i class="bi bi-github"></i></a>
+    <a href="https://twitter.com/dynamics" title="Charles on Twitter" class="quarto-navigation-tool px-1" aria-label="Charles on Twitter"><i class="bi bi-twitter"></i></a>
+    <a href="https://www.linkedin.com/in/charlesfeinn" title="Charles on Linkedin" class="quarto-navigation-tool px-1" aria-label="Charles on Linkedin"><i class="bi bi-linkedin"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Challenges in Reproducing LLM Evaluation Results</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">evaluations</div>
+    <div class="quarto-category">llms</div>
+    <div class="quarto-category">prompts</div>
+    <div class="quarto-category">mmlu</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A Case Study with MMLU and Llama 3
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Charles Feinn </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 3, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In my previous post, <a href="https://chuckfinca.github.io/machine_learnings/posts/24-09-02-creating-an-evaluation-framework/">Creating an Evaluation Framework</a>, I created a simple evaluation framework for LLMs. I attempted to reproduce Meta’s Llama 3.1 8B Massive Multitask Language Understanding (MMLU)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> macro score of 73.0<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. TLDR: I couldn’t quite get there, but I did journey pretty deep into the messy world of LLM evaluation.</p>
+</section>
+<section id="the-reproduction-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="the-reproduction-challenge">The Reproduction Challenge</h2>
+<p>I initially achieved a micro score of 66.6 and a macro score of 67.0<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. That’s a 6.0 point gap from Meta’s published score. The post focused on building out the evaluation framework so I didn’t spend time investigating, but it left me wondering.</p>
+<p>6.0 points in MMLU is a lot. It represents almost half the difference between Meta’s 8B and 70B models (73.0 and 86.0 respectively).</p>
+<p>When thinking about what could have caused this difference I remembered something that Hamel Husain said in <a href="https://maven.com/parlance-labs/fine-tuning"><em>Mastering LLMs: A Conference For Developers &amp; Data Scientists</em></a>. The gist was that you should never trust what is going in to your model. You need to look at it, understand any template that is being applied, and verify that is what you want. He even wrote a rather provocative blog post on the subject<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
+</section>
+<section id="looking-under-the-hood" class="level2">
+<h2 class="anchored" data-anchor-id="looking-under-the-hood">Looking under the hood</h2>
+<p>Truth be told, I had Claude handle this part from my previous post. It had seemed to work, and wasn’t the focus of the post, so I hadn’t delved deeper. Now was the time to change that.</p>
+<p>So, first things first, let’s look under the hood<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>:</p>
+<div id="edbd8b2f" class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _format_prompt(<span class="va">self</span>, dev_df, test_df, test_idx):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    prompt <span class="op">=</span> <span class="st">"Answer the following multiple choice questions. Choose the best answer from A, B, C, or D.</span><span class="ch">\n\n</span><span class="st">"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(dev_df)):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        prompt <span class="op">+=</span> <span class="va">self</span>._format_example(dev_df, i) <span class="op">+</span> <span class="st">"</span><span class="ch">\n\n</span><span class="st">"</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    prompt <span class="op">+=</span> <span class="va">self</span>._format_example(test_df, test_idx, include_answer<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> prompt</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _format_example(<span class="va">self</span>, df, idx, include_answer<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    prompt <span class="op">=</span> df.iloc[idx, <span class="dv">0</span>]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j, choice <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="va">self</span>.choices):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        prompt <span class="op">+=</span> <span class="ss">f"</span><span class="ch">\n</span><span class="sc">{</span>choice<span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>df<span class="sc">.</span>iloc[idx, j<span class="op">+</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    prompt <span class="op">+=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">Answer:"</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> include_answer:</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        prompt <span class="op">+=</span> <span class="ss">f" </span><span class="sc">{</span>df<span class="sc">.</span>iloc[idx, <span class="dv">5</span>]<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> prompt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It is very difficult to visualize the prompt from these functions. It is clear that there are various parts (instructions, examples, test, etc.), and that they are combined using new lines in some way, but the specifics are hard to grok from the code.</p>
+<p>So I went about refactoring so that the prompt was configured in the config which informed the model:</p>
+<p><code>basic_config.json:</code></p>
+<div id="7842af4c" class="cell" data-vscode="{&quot;languageId&quot;:&quot;json&quot;}">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"benchmark_name"</span>: <span class="st">"mmlu"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model_name"</span>: <span class="st">"meta-llama/Meta-Llama-3.1-8B-Instruct"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nshot"</span>: <span class="dv">0</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"answer_choices"</span>: [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>],</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"use_chat_template"</span>: false,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"system_prompt"</span>: <span class="st">"None"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"user_prompt_template"</span>: {</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"template"</span>: <span class="st">"</span><span class="sc">{instructions}</span><span class="ch">\n\n</span><span class="sc">{question}</span><span class="st">"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"instructions"</span>: <span class="st">"Answer the following multiple choice questions. Choose the best answer from </span><span class="sc">{label_a}</span><span class="st">, </span><span class="sc">{label_b}</span><span class="st">, </span><span class="sc">{label_c}</span><span class="st">, or </span><span class="sc">{label_d}</span><span class="st">."</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"question_template"</span>: <span class="st">"</span><span class="sc">{question}</span><span class="ch">\n</span><span class="sc">{label_a}</span><span class="st">. </span><span class="sc">{choice_a}</span><span class="ch">\n</span><span class="sc">{label_b}</span><span class="st">. </span><span class="sc">{choice_b}</span><span class="ch">\n</span><span class="sc">{label_c}</span><span class="st">. </span><span class="sc">{choice_c}</span><span class="ch">\n</span><span class="sc">{label_d}</span><span class="st">. </span><span class="sc">{choice_d}</span><span class="ch">\n\n</span><span class="st">Answer: "</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"question_separator"</span>: <span class="st">"</span><span class="ch">\n\n</span><span class="st">"</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"log_level"</span>: <span class="st">"INFO"</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cap_subjects"</span> : false,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"generation_type"</span>: <span class="st">"inference"</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>basic_config.json</code> results in a prompt with format:</p>
+<blockquote class="blockquote">
+<p>The following are multiple choice questions (with answers) about {subject}.</p>
+<p>{question}<br>
+A. {choice_a}<br>
+B. {choice_b}<br>
+C. {choice_c}<br>
+D. {choice_d}</p>
+<p>Answer:</p>
+</blockquote>
+<p>Using this setup I was able to get a micro average of 66.7<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, which is just a hair better than my score of 66.6 from the original post.</p>
+<p>With my baseline set, I went about trying to reproduce Meta’s reported 73.0<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p>
+</section>
+<section id="down-the-rabbit-hole-of-evaluation-methods" class="level2">
+<h2 class="anchored" data-anchor-id="down-the-rabbit-hole-of-evaluation-methods">Down the Rabbit Hole of Evaluation Methods</h2>
+<section id="the-many-faces-of-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="the-many-faces-of-evaluation">The Many Faces of Evaluation</h3>
+<p>There are a lot of ways that this evaluation can be performed. A few possibilities include:</p>
+<pre><code>1) Let the model complete its text response and extract the answer (a.k.a. open-ended generation)
+2) Look at the logits after a single round of inference and pick the most probable answer
+3) Constrain the logit choices to valid answers and pick the most probable (a.k.a. constrained decoding)</code></pre>
+<p>Each method has its pros and cons, involving trade-offs between computation cost, potential for the model to go off the rails, and the hassle of extracting answers from free-form text.</p>
+<p>In Meta’s supplemental <em>Llama 3 Evaluation Details</em> they say that “the maximum generation lengths for the 5-shot and 0-shot configs are 10 tokens and 1024 tokens respectively”<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>. This leads me to believe that they used open-ended generation, which contrasted with the constrained decoding which I had been doing.</p>
+</section>
+<section id="the-quest-for-the-perfect-prompt" class="level3">
+<h3 class="anchored" data-anchor-id="the-quest-for-the-perfect-prompt">The Quest for the Perfect Prompt</h3>
+<p>I experimented with N-shot, Chain-of-Thought (CoT), and chat templates. I experimented with open-ended generation, looking at logits, and constrained decoding. For example, I tried using open-ended generation with the 0-shot chat template used in Sprague et al.’s <em>To CoT or not to CoT</em> (2024)<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>:</p>
+<p><code>chat_template_config.json</code></p>
+<div id="81ec6fe7" class="cell" data-vscode="{&quot;languageId&quot;:&quot;json&quot;}">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"benchmark_name"</span>: <span class="st">"mmlu"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model_name"</span>: <span class="st">"meta-llama/Meta-Llama-3.1-8B-Instruct"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nshot"</span>: <span class="dv">0</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"answer_choices"</span>: [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>],</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"use_chat_template"</span>: true,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"system_prompt"</span>: <span class="st">"You answer questions. At the end of the question you always give an answer and nothing else. You must pick an answer. You always give only one answer and that one answer is the one you think is best. You always give the answer in the form of the answer choice letter."</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"user_prompt_template"</span>: {</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"template"</span>: <span class="st">"</span><span class="sc">{instructions}</span><span class="ch">\n</span><span class="sc">{question}</span><span class="st">"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"question_template"</span>: <span class="st">"</span><span class="sc">{question}</span><span class="ch">\n</span><span class="sc">{label_a}</span><span class="st">. </span><span class="sc">{choice_a}</span><span class="ch">\n</span><span class="sc">{label_b}</span><span class="st">. </span><span class="sc">{choice_b}</span><span class="ch">\n</span><span class="sc">{label_c}</span><span class="st">. </span><span class="sc">{choice_c}</span><span class="ch">\n</span><span class="sc">{label_d}</span><span class="st">. </span><span class="sc">{choice_d}</span><span class="ch">\n\n</span><span class="st">Answer: "</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"question_separator"</span>: <span class="st">"</span><span class="ch">\n\n</span><span class="st">"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"instructions"</span>: <span class="st">"Give your answer in the format </span><span class="ch">\"</span><span class="st">The answer is therefore &lt;</span><span class="sc">{label_a}</span><span class="st">, </span><span class="sc">{label_b}</span><span class="st">, </span><span class="sc">{label_c}</span><span class="st">, </span><span class="sc">{label_d}</span><span class="st">&gt;</span><span class="ch">\"</span><span class="st">. Failure to comply with the answer formatting will result in no credit."</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To create a prompt that looked like:</p>
+<blockquote class="blockquote">
+<p>&lt;|begin_of_text|&gt;&lt;|start_header_id|&gt;system&lt;|end_header_id|&gt;<br>
+You answer questions. At the end of the question you always give an answer and nothing else. You must pick an answer. You always give only one answer and that one answer is the one you think is best. You always give the answer in the form of the answer choice letter.&lt;|eot_id|&gt;&lt;|start_header_id|&gt;user&lt;|end_header_id|&gt;</p>
+<p>Give your answer in the format "The answer is therefore &lt;A, B, C, D&gt;". Failure to comply with the answer formatting will result in no credit.</p>
+<p>{question} A. {choice_a}<br>
+B. {choice_b}<br>
+C. {choice_c}<br>
+D. {choice_d}</p>
+<p>Answer:&lt;|eot_id|&gt;&lt;|start_header_id|&gt;assistant&lt;|end_header_id|&gt;</p>
+</blockquote>
+<p>Result<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>? A measly 61.0. Back to the drawing board.</p>
+</section>
+<section id="the-original-mmlu-prompt" class="level3">
+<h3 class="anchored" data-anchor-id="the-original-mmlu-prompt">The original MMLU prompt</h3>
+<p>Turning back to Meta’s documentation I decided to look at the language used in my prompt. Meta stated that it had used the original MMLU prompt<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a>, so I sought it out.</p>
+<p>According to <em>What’s going on with the Open LLM Leaderboard?</em>, the standard MMLU prompt is<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a>:</p>
+<blockquote class="blockquote">
+<p>The following are multiple choice questions (with answers) about {subject}.<br>
+{question}<br>
+A. {choice_a}<br>
+B. {choice_b}<br>
+C. {choice_c}<br>
+D. {choice_d}<br>
+Answer:</p>
+</blockquote>
+<p>To reproduce the prompt I created a new config:</p>
+<p><code>original_mmlu_config.json</code></p>
+<div id="a8ae6a43" class="cell" data-vscode="{&quot;languageId&quot;:&quot;json&quot;}">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"benchmark_name"</span>: <span class="st">"mmlu"</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model_name"</span>: <span class="st">"meta-llama/Meta-Llama-3.1-8B-Instruct"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nshot"</span>: <span class="dv">0</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"answer_choices"</span>: [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>],</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"use_chat_template"</span>: false,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"system_prompt"</span>: <span class="st">""</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"user_prompt_template"</span>: {</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"template"</span>: <span class="st">"</span><span class="sc">{instructions}</span><span class="ch">\n</span><span class="sc">{question}</span><span class="st">"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"instructions"</span>: <span class="st">"The following are multiple choice questions (with answers) about </span><span class="sc">{subject}</span><span class="st">."</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"question_template"</span>: <span class="st">"</span><span class="sc">{question}</span><span class="ch">\n</span><span class="sc">{label_a}</span><span class="st">. </span><span class="sc">{choice_a}</span><span class="ch">\n</span><span class="sc">{label_b}</span><span class="st">. </span><span class="sc">{choice_b}</span><span class="ch">\n</span><span class="sc">{label_c}</span><span class="st">. </span><span class="sc">{choice_c}</span><span class="ch">\n</span><span class="sc">{label_d}</span><span class="st">. </span><span class="sc">{choice_d}</span><span class="ch">\n</span><span class="st">Answer: "</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"question_separator"</span>: <span class="st">"</span><span class="ch">\n\n</span><span class="st">"</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"log_level"</span>: <span class="st">"INFO"</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cap_subjects"</span> : false,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"generation_type"</span>: <span class="st">"inference"</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This simple approach yielded my best score yet: 68.3<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a>.</p>
+</section>
+</section>
+<section id="wrapping-my-head-around-it-all" class="level2">
+<h2 class="anchored" data-anchor-id="wrapping-my-head-around-it-all">Wrapping My Head Around It All</h2>
+<section id="the-prompt-sensitivity-conundrum" class="level3">
+<h3 class="anchored" data-anchor-id="the-prompt-sensitivity-conundrum">The Prompt Sensitivity Conundrum</h3>
+<p>Throughout this journey, I learned that these models are surprisingly sensitive to prompts<a href="#fn14" class="footnote-ref" id="fnref14" role="doc-noteref"><sup>14</sup></a>. Tiny changes can lead to big swings in performance. What works on one model doesn’t work on another. It’s definitely more art than science.</p>
+</section>
+<section id="the-evaluation-quagmire" class="level3">
+<h3 class="anchored" data-anchor-id="the-evaluation-quagmire">The Evaluation Quagmire</h3>
+<p>The more I dug into this, the messier it got. Reproducibility issues, stochastic weirdness, and an uncomfortable reliance on prompt engineering made me question the whole evaluation game. Are we really measuring model capability, or just our ability to craft the perfect prompt?</p>
+<p>Don’t even get me started on <a href="https://arxiv.org/abs/2309.08632">training on the test set</a>.</p>
+</section>
+<section id="a-ray-of-hope" class="level3">
+<h3 class="anchored" data-anchor-id="a-ray-of-hope">A Ray of Hope</h3>
+<p>It’s not all doom and gloom, though. Third-party evaluators like HuggingFace’s <a href="https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard">Open LLM Leaderboard</a> are doing the community a huge service by providing free, consistent, reproducible benchmarks allowing for relative comparisons between models. And ultimately evaluations are only a tool. The most important evaluations will be the custom ones that show you have the right model for your task.</p>
+</section>
+</section>
+<section id="concluding-thoughts" class="level2">
+<h2 class="anchored" data-anchor-id="concluding-thoughts">Concluding Thoughts</h2>
+<p>This deep dive into MMLU evaluation left me with more questions than answers. But isn’t that how all good scientific inquiries go? We’ve got a long way to go in standardizing LLM evaluation, but finding a way to objectively assess these stochastic machines is incredibly important.</p>
+<p>So, the next time you see a flashy headline about some model’s incredible benchmark performance, remember - there’s probably a lot of prompt engineering magic happening behind the curtain. And reproducing those results? Well, that’s a whole other can of worms.</p>
+<p>Until next time.</p>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D., &amp; Steinhardt, J. (2021). Measuring massive multitask language understanding. arXiv. <a href="https://arxiv.org/abs/2009.03300">https://arxiv.org/abs/2009.03300</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Meta. (2024, July 23). Introducing Llama 3.1: Our most capable models to date. Meta AI. <a href="https://ai.meta.com/blog/meta-llama-3-1/">https://ai.meta.com/blog/meta-llama-3-1/</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p><strong>NOTE:</strong></p>
+<p>The <em>macro average</em> is the average of each subject’s score.</p>
+<p>The <em>micro average</em> is calculated by aggregating all subjects responses.</p>
+<p>Meta’s reported score of 73.0 was a macro average score. My <a href="https://chuckfinca.github.io/machine_learnings/posts/24-09-02-creating-an-evaluation-framework/">previous post</a> reported the micro average.</p>
+<p>In the rest of this post I will refer to the macro score unless otherwise noted.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>Husain, H. (2024, February 14). Fuck You, Show Me The Prompt. hamel.dev. <a href="https://hamel.dev/blog/posts/prompt/">https://hamel.dev/blog/posts/prompt/</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>To reproduce:</p>
+<pre class="{shell}"><code>git clone https://github.com/chuckfinca/evaluate.git
+cd evaluate  
+git checkout 24-09-02-creating-an-evaluation-framework</code></pre>
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></li>
+<li id="fn6"><p>To reproduce:</p>
+<pre class="{bash}"><code>git clone https://github.com/chuckfinca/evaluate.git
+cd evaluate  
+git checkout 3203ed4
+python evaluate/evaluate/main.py basic_config.json</code></pre>
+<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></li>
+<li id="fn7"><p>Meta. (2024, July 23). Introducing Llama 3.1: Our most capable models to date. Meta AI. <a href="https://ai.meta.com/blog/meta-llama-3-1/">https://ai.meta.com/blog/meta-llama-3-1/</a><a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p>Meta Llama. (2024, July 23). Llama 3 Evaluation Details [Computer software]. GitHub. <a href="https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/eval_details.md">https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/eval_details.md</a><a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p>Sprague, Z., Yin, F., Rodriguez, J. D., Jiang, D., Wadhwa, M., Singhal, P., Zhao, X., Ye, X., Mahowald, K., &amp; Durrett, G. (2024). To CoT or not to CoT? Chain-of-thought helps mainly on math and symbolic reasoning. arXiv. <a href="https://doi.org/10.48550/arXiv.2409.12183">https://doi.org/10.48550/arXiv.2409.12183</a><a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10"><p>To reproduce:</p>
+<pre class="{bash}"><code>git clone https://github.com/chuckfinca/evaluate.git
+cd evaluate  
+git checkout 3203ed4
+python evaluate/evaluate/main.py chat_template_config.json</code></pre>
+<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></li>
+<li id="fn11"><p>Meta Llama. (2024, July 23). Llama 3 Evaluation Details [Computer software]. GitHub. <a href="https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/eval_details.md">https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/eval_details.md</a><a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn12"><p>Fourrier, C., Habib, N., Launay, J., Wolf, T. (2023, June 23). What’s Going on with the Open LLM Leaderboard. Hugging Face Blog. <a href="https://huggingface.co/blog/open-llm-leaderboard-mmlu">https://huggingface.co/blog/open-llm-leaderboard-mmlu</a><a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn13"><p>To reproduce:</p>
+<pre class="{bash}"><code>git clone https://github.com/chuckfinca/evaluate.git
+cd evaluate  
+git checkout 3203ed4
+python evaluate/evaluate/main.py original_mmlu_config.json</code></pre>
+<a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></li>
+<li id="fn14"><p>Schulhoff, S., Ilie, M., Balepur, N., Kahadze, K., Liu, A., Si, C., Li, Y., Gupta, A., Han, H., Schulhoff, S., Dulepet, P. S., Vidyadhara, S., Ki, D., Agrawal, S., Pham, C., Kroiz, G., Li, F., Tao, H., Srivastava, A., Da Costa, H., Gupta, S., Rogers, M. L., Goncearenco, I., Sarli, G., Galynker, I., Peskoff, D., Carpuat, M., White, J., Anadkat, S., Hoyle, A., &amp; Resnik, P. (2024). The Prompt Report: A Systematic Survey of Prompting Techniques. arXiv. <a href="https://arxiv.org/abs/2406.06608v3">https://arxiv.org/abs/2406.06608v3</a><a href="#fnref14" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/chuckfinca\.github\.io\/machine_learnings\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
