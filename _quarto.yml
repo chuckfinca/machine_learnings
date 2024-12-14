@@ -1,6 +1,7 @@
 project:
   type: website
-  output-dir: _site
+  output-dir: _site=
+  exclude: ["notebooks/**"]
 website:
   title: "Machine Learnings"
   description: "notes from my explorations in machine learning"
