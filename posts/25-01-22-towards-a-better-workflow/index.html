@@ -7,8 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Charles Feinn">
+<meta name="dcterms.date" content="2025-01-22">
+<meta name="description" content="Lessons learned from integrating AI assistants into daily development">
 
-<title>Machine Learnings</title>
+<title>Towards a Better Workflow – Machine Learnings</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,27 +23,59 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -69,79 +103,21 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-description','listing-categories','listing-image',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    <img src="./logo.png" alt="" class="navbar-logo">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../logo.png" alt="" class="navbar-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Machine Learnings</span>
     </a>
   </div>
@@ -152,7 +128,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -166,31 +142,44 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="dspy">dspy <span class="quarto-category-count">(1)</span></div><div class="category" data-category="evaluation">evaluation <span class="quarto-category-count">(3)</span></div><div class="category" data-category="mmlu">mmlu <span class="quarto-category-count">(3)</span></div><div class="category" data-category="prompting">prompting <span class="quarto-category-count">(4)</span></div><div class="category" data-category="rag">rag <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Machine Learnings</h1>
+<h1 class="title">Towards a Better Workflow</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">prompting</div>
+    <div class="quarto-category">rag</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Lessons learned from integrating AI assistants into daily development
+  </div>
 </div>
 
 
-
-<div class="quarto-title-meta column-page-left">
+<div class="quarto-title-meta">
 
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Charles Feinn </p>
+             <p><a href="https://github.com/chuckfinca">Charles Feinn</a> </p>
           </div>
   </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 22, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -200,161 +189,126 @@ window.Quarto = {
 </header>
 
 
+<p><img src="workflow-cycle.svg" class="img-fluid"></p>
+<p>Over the last few months, I have started using Claude more consistently in my day to day programming. Overall I would say that it has made me more productive, although it hasn’t been a straight line and at times the process can be frustrating. This post is to share what I’ve found works.</p>
+<p>This post explains my current workflow with commentary, as well as tips and tricks I’ve learned along the way.</p>
+<section id="my-simple-setup" class="level3">
+<h3 class="anchored" data-anchor-id="my-simple-setup">My (Simple) Setup:</h3>
+<ul>
+<li><strong>Claude</strong> - Web browser (usually) or macOS app. I have a Pro account which I use for all my general purpose, day-to-day tasks. Each IDE project has its own Claude Project.</li>
+<li><strong>IDE</strong> - VSCode / Xcode / Zed, etc.</li>
+<li><strong>Warp</strong> &amp; <strong>Terminal</strong> - I use Warp whenever I am doing something I don’t know how to do, or when I want fancy autocomplete. For everything else I work in a minimally skinned, <span style="background: black; color: #00ff00; font-family: monospace; padding: 0.1em;">Home Brew</span> themed Terminal window.</li>
+<li><code>extract-files</code> - A little bash extension Claude and I created (more on this later).</li>
+<li><strong>GitHub</strong> - Source control is crucial to reign in the chaos of working with LLMs. Accessed via the command line.</li>
+<li><strong>Source Tree</strong> - For reviewing changes before committing new work.</li>
+</ul>
+</section>
+<section id="wait-but-why" class="level3">
+<h3 class="anchored" data-anchor-id="wait-but-why"><a href="https://waitbutwhy.com" style="color: #212529; text-decoration: none;">Wait, But Why?</a></h3>
+<p>I’m sure some of you are wondering why I’m not using Cursor, the VSCode Copilot extension, or [insert other AI integrated into an IDE]. My reason is basically that I want a separation of concerns.</p>
+<p>When I am working in my IDE I want to focus there. When I want to use a model to help me write, fix, or refactor some code I want to be very deliberate about what I’m feeding the model, when, and why. I worry (possibly overly so) about what might be going on between my code and what is being tokenized by the model. If I control it, at least I can’t blame anyone else when things go awry.</p>
+<p>Along with that, this setup allows me to think of the LM as a partner that I can bounce ideas off, flesh out my plans, and sanity check my hairball schemes. Having a language model tightly integrated into an IDE would likely skew my usage towards writing code, and I get at least half my benefit from fleshing ideas out before writing, or in response to generated code.</p>
+<p>Anyway, while I’m sure we could debate ad-nauseam whether this is the best setup, I like it, and it’s working for me.</p>
+<p>So let’s break it down:</p>
+</section>
+<section id="finding-zen" class="level3">
+<h3 class="anchored" data-anchor-id="finding-zen">Finding Zen</h3>
+<p>My general workflow when working with an assistant is as follows:</p>
+<ol type="1">
+<li><strong>Make sure everything is checked in to git</strong> - This is super important as we need a quick way to backtrack when things go awry (and they will). When working in a shared codebase I would also checkout a new branch to contain this change.<br>
+</li>
+<li><strong>Figure out what single thing to work on next</strong> - The smaller and more modular the better.<br>
+</li>
+<li><strong>Update Claude’s Project Knowledge to reflect the current state</strong> - Here’s where <code>extract-files</code> comes in, more on that below.<br>
+</li>
+<li><strong>Have one or more conversations regarding the next task</strong> - Often I will talk it through first, asking Claude not to write any code. Then, once I’m confident that I can fully articulate the change I want to see I ask Claude to make the change as concisely as as possible with clearly separated concerns.<br>
+</li>
+<li><strong>Revise</strong> - This step generally takes some back and forth. I tell Claude what I do and don’t like about its output. Sometimes it takes a couple of restarts with better prompts, refined through our conversation.<br>
+</li>
+<li><strong>Implementation of the change within the IDE</strong> - This is mostly a copy / paste exercise, and gives you another perspective on how the change looks, fits, and feels.<br>
+</li>
+<li><strong>Refine</strong> - During this stage I use Source Tree to look at the diff generated by the change. This helps me think through its broader implications. Sometimes Claude nails it, but often I need to tweak, refine, or even abort and start fresh at this point before I am happy with the result.<br>
+</li>
+<li>(As needed) <strong>Commit works in progress to git</strong> - that way you can explore different paths when in the middle of figuring out the final solution. Commits are like game checkpoints that you can always backtrack to whenever you get in over your head. I don’t spend much time on the commit message for these, usually using something like ‘wip’.<br>
+</li>
+<li><strong>Test</strong> - Locate and fix any errors that have been overlooked or outright missed. If the change warrants test cases that have not already been written add them at this point. Also run through your other tests to make sure that the change did not break anything.<br>
+</li>
+<li><strong>Commit the finished code to git</strong> - If working on a branch I like to squash merge back into the trunk I was working off of with a descriptive commit message describing the overall change. This avoids a git history of missteps and poor commit messages resulting from your experimentation.</li>
+</ol>
+<p>I have used this general flow over the past few months as I have built out an <a href="https://chuckfinca.github.io/machine_learnings/posts/24-09-02-creating-an-evaluation-framework/">evaluation framework</a>, <a href="https://chuckfinca.github.io/machine_learnings/posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/">explored prompting techniques</a>, and <a href="https://chuckfinca.github.io/machine_learnings/posts/24-12-14-beyond-manual-prompts/">experimented with DSPy</a>, improving on it as I go. I currently using it to build out <a href="https://github.com/chuckfinca/llm_server">the backbone</a> for some simple mobile apps that I have been itching to build.</p>
+<p>The method’s effectiveness is largely dependent on how complex and atypical the task is. I have pretty much been able to entirely hand off the writing of boilerplate code as well as building solutions to simple, solved problems. However as the complexity increases things start to break down. To mitigate this, I try and make each change as small and modular as possible.</p>
+<p>Using this methodology, and with patience and care, I have yet to find a use case (in python) that I haven’t been able to tackle yet. However, it is not without some difficulty.</p>
+</section>
+<section id="pain-point" class="level3">
+<h3 class="anchored" data-anchor-id="pain-point">Pain Point</h3>
+<p>This flow requires that I am constantly updating my Claude Project’s Project Knowledge files. And (as of January 22nd, 2025) Anthropic did not allow for editing Project Knowledge via an API, so this is a manual process that happens using their drag and drop interface. This isn’t horrible for smaller projects with few files, but can quickly become annoying and then unmanageable as the number of files grow.</p>
+<p>Beyond being tedious, changing out Claude’s Project Knowledge files manually was error prone and cumbersome. I would often forget to update the files, or I would lazily assume that Claude would keep track of the changing states of files throughout our conversation. Both lead to at best lessor, or out right wrong, responses wasting time and tokens.</p>
+<p>Eventually got fed up and decided to write something. So I used Claude to write a small script to help out. The script is called <a href="https://github.com/chuckfinca/extract-files">extract-files</a> and, as its name suggests, it extracts files from directories based on extensions or filenames:</p>
+<div id="b1bf81e6" class="cell" data-vscode="{&quot;languageId&quot;:&quot;shellscript&quot;}">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>extract<span class="op">-</span>files <span class="bu">dir</span> [<span class="op">-</span>e ext1 ext2...] [<span class="op">-</span>f file1 file2...] [<span class="op">-</span>o output_dir] [<span class="op">-</span>t]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For example, if I wanted to grab all of the python and yaml files, my requirements.txt, and the tree (project diagram) from my current root directory I could easily do so:</p>
+<div id="249853c3" class="cell" data-vscode="{&quot;languageId&quot;:&quot;shellscript&quot;}">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>extractfiles . <span class="op">-</span>e py yaml <span class="op">-</span>f requirements.txt <span class="op">-</span>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Checkout the <a href="https://github.com/chuckfinca/extract-files/blob/main/README.md#:~:text=usr/local/bin/-,Usage,-extract%2Dfiles%20dir">Usage Instructions</a> for more details.</p>
+</div>
+</div>
+<p>The files are extracted flatly into the output folder. To account for this flattening, by default the script first creates a diagram of the architecture using <a href="https://github.com/Old-Man-Programmer/tree"><code>tree</code></a> a script created by Steve Baker, that traverses your project folders and presents them visually using text. By presenting this text tree along with your files it allows Claude to “see” the architecture of your project without having to traverse import statements.</p>
+<div id="96252c65" class="cell" data-vscode="{&quot;languageId&quot;:&quot;shellscript&quot;}">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>.</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>├── LICENSE</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>├── README.md</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>├── <span class="bu">bin</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>│&nbsp;&nbsp; └── extract<span class="op">-</span>files</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>└── tests</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    └── test_extract_files.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>tree</code> of the <a href="https://github.com/chuckfinca/extract-files">extract-files</a> project.</p>
+</div>
+</div>
+<p>The flow of this within my larger flow is to: 1) Delete all files from Claude’s Project Knowledge 2) Run <code>extract-files</code> for the project directory I’m working in 3) Select all in my output folder and drag the extracted files into Claude’s Project Knowledge 4) Run my prompt(s) against the updated knowledge</p>
+<p>This is far from perfect. There is still the manual piece of deleting old files, running the script, and importing the updated files. And even if those parts could be automated, I’m bound by the size of Claude’s project knowledge and ultimately Sonnet’s context window.</p>
+<p>Still, for the kinds of projects I have been working on, it makes life considerably better.</p>
+<p>Delete the current files, run one command, drag and drop everything at once, and prompt away. The manual component makes your actions intentional. And with intention follows better outcomes.</p>
+<p>In many ways, this workflow is my simplified version of RAG (Retrieval Augmented Generation). Instead of building complex embedding systems, I’m using Claude’s project knowledge feature as my retrieval mechanism, manually updating the relevant context as I work. While not as sophisticated as full RAG systems, this approach gives me similar benefits: the model has access to my current codebase, can make contextually aware suggestions, and helps prevent hallucination of nonexistent code structures.</p>
+</section>
+<section id="making-life-even-easier" class="level3">
+<h3 class="anchored" data-anchor-id="making-life-even-easier">Making Life Even Easier</h3>
+<p>As a complement to the above workflow I have accumulated some best practices that make my LM-ing more pleasant and productive:<br>
+- Keep conversations short. Try not to go over 10 turns.<br>
+- Start over when things start to go awry, don’t try to course correct. Clearing the slate gives you a good chance to re-ask your question with better prompt, and better prompts generally result in better output.<br>
+- When stuck, tell your LM to not write code and talk through the thing you’re working on. Or ask it to give you a few alternative ways forward. Evaluating multiple options is a great way to get unstuck.</p>
+</section>
+<section id="thats-a-wrap" class="level3">
+<h3 class="anchored" data-anchor-id="thats-a-wrap">That’s a Wrap!</h3>
+<p>While this workflow may seem more manual than fully automated alternatives, I’ve found that this deliberate approach leads to better code quality and fewer mistakes. The combination of using an LM as a thought partner for planning and architecture, while maintaining tight control over code implementation, has struck a productive balance between AI assistance and human oversight.</p>
+<p>If you’ve made it here, thanks for reading! I’d love to hear what works for you. If you’ve got questions or comments please feel free to email me at chuckfinca at gmail dot com.</p>
 
 
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="prompting,rag" data-listing-date-sort="1737500400000" data-listing-file-modified-sort="1737584091301" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1703">
-<div class="thumbnail">
-<p><a href="./posts/25-01-22-towards-a-better-workflow/index.html" class="no-external"></a></p><a href="./posts/25-01-22-towards-a-better-workflow/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/25-01-22-towards-a-better-workflow/workflow-cycle.svg" class="thumbnail-image"></p>
-</a><p><a href="./posts/25-01-22-towards-a-better-workflow/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/25-01-22-towards-a-better-workflow/index.html" class="no-external">Towards a Better Workflow</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/25-01-22-towards-a-better-workflow/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('prompting'); return false;">
-prompting
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('rag'); return false;">
-rag
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/25-01-22-towards-a-better-workflow/index.html" class="no-external">Lessons learned from integrating AI assistants into daily development</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/25-01-22-towards-a-better-workflow/index.html" class="no-external">
-<div class="listing-date">
-Jan 22, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="evaluation,prompting,mmlu,dspy" data-listing-date-sort="1734130800000" data-listing-file-modified-sort="1734265244767" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22" data-listing-word-count-sort="4351">
-<div class="thumbnail">
-<p><a href="./posts/24-12-14-beyond-manual-prompts/index.html" class="no-external"></a></p><a href="./posts/24-12-14-beyond-manual-prompts/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/24-12-14-beyond-manual-prompts/dspy-mmlu-animation.svg" class="thumbnail-image"></p>
-</a><p><a href="./posts/24-12-14-beyond-manual-prompts/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/24-12-14-beyond-manual-prompts/index.html" class="no-external">Beyond Manual Prompts</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/24-12-14-beyond-manual-prompts/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('evaluation'); return false;">
-evaluation
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('prompting'); return false;">
-prompting
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('mmlu'); return false;">
-mmlu
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('dspy'); return false;">
-dspy
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/24-12-14-beyond-manual-prompts/index.html" class="no-external">Using DSPy to Match Meta’s MMLU Scores</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/24-12-14-beyond-manual-prompts/index.html" class="no-external">
-<div class="listing-date">
-Dec 14, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="evaluation,prompting,mmlu" data-listing-date-sort="1727906400000" data-listing-file-modified-sort="1734215764274" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1501">
-<div class="thumbnail">
-<p><a href="./posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/index.html" class="no-external"></a></p><a href="./posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/index.html" class="no-external">
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-</a><p><a href="./posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/index.html" class="no-external">Challenges in Reproducing LLM Evaluation Results</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('evaluation'); return false;">
-evaluation
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('prompting'); return false;">
-prompting
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('mmlu'); return false;">
-mmlu
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/index.html" class="no-external">A Case Study with MMLU and Llama 3</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/24-10-03-challenges-in-reproducing-llm-evaluation-results/index.html" class="no-external">
-<div class="listing-date">
-Oct 3, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="evaluation,prompting,mmlu" data-listing-date-sort="1725228000000" data-listing-file-modified-sort="1734215792530" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="971">
-<div class="thumbnail">
-<p><a href="./posts/24-09-02-creating-an-evaluation-framework/index.html" class="no-external"></a></p><a href="./posts/24-09-02-creating-an-evaluation-framework/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/24-09-02-creating-an-evaluation-framework/chart.png" class="thumbnail-image"></p>
-</a><p><a href="./posts/24-09-02-creating-an-evaluation-framework/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/24-09-02-creating-an-evaluation-framework/index.html" class="no-external">Creating an Evaluation Framework</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/24-09-02-creating-an-evaluation-framework/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('evaluation'); return false;">
-evaluation
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('prompting'); return false;">
-prompting
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('mmlu'); return false;">
-mmlu
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/24-09-02-creating-an-evaluation-framework/index.html" class="no-external">Building out a framework that takes a model and a benchmark as input and returns the score as output.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/24-09-02-creating-an-evaluation-framework/index.html" class="no-external">
-<div class="listing-date">
-Sep 2, 2024
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
