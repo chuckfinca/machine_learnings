@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <style>
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+    @keyframes flow {
+      0% { stroke-dashoffset: 800; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes fade {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    .flow-line {
+      stroke-dasharray: 10,5;
+      animation: flow 10s linear infinite;
+    }
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .fade {
+      animation: fade 3s ease-in-out infinite;
+    }
+  </style>
+
+  <!-- Background containers -->
+  <rect x="50" y="50" width="300" height="300" fill="#f8f9fa" rx="20" />
+  <rect x="450" y="50" width="300" height="300" fill="#f0f4f8" rx="20" />
+
+  <!-- Container labels -->
+  <text x="170" y="100" font-family="Arial" font-size="24" text-anchor="middle">IDE</text>
+  <text x="600" y="100" font-family="Arial" font-size="24" text-anchor="middle">Claude</text>
+
+  <!-- IDE elements -->
+  <rect x="80" y="140" width="240" height="180" fill="#fff" stroke="#ddd" rx="10" class="pulse"/>
+  <text x="200" y="200" font-family="monospace" font-size="14" text-anchor="middle" fill="#666">
+    <tspan x="200" dy="0">code editor</tspan>
+    <tspan x="200" dy="20">project files</tspan>
+    <tspan x="200" dy="20">version control</tspan>
+  </text>
+
+  <!-- Claude elements -->
+  <rect x="480" y="140" width="240" height="180" fill="#fff" stroke="#ddd" rx="10" class="pulse"/>
+  <text x="600" y="200" font-family="monospace" font-size="14" text-anchor="middle" fill="#666">
+    <tspan x="600" dy="0">conversation</tspan>
+    <tspan x="600" dy="20">project context</tspan>
+    <tspan x="600" dy="20">planning &amp; review</tspan>
+  </text>
+
+  <!-- Flow arrows -->
+  <path d="M320 180 C380 180, 420 160, 480 180" 
+        stroke="#666" 
+        fill="none"
+        stroke-width="2"
+        class="flow-line"/>
+  
+  <path d="M480 220 C420 220, 380 240, 320 220" 
+        stroke="#666"
+        fill="none" 
+        stroke-width="2"
+        class="flow-line"/>
+
+  <!-- ME text -->
+  <text x="400" y="210" font-family="Arial" font-weight="bold" font-size="24" text-anchor="middle" fill="#666" class="fade">
+    ME
+  </text>
+
+  <!-- Legend -->
+  <text x="400" y="380" font-family="Arial" font-size="16" text-anchor="middle" fill="#666">
+    Intentional Context Sharing &amp; Collaboration
+  </text>
+</svg>

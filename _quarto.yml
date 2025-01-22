@@ -2,6 +2,8 @@ project:
   type: website
   output-dir: _site
   render:
+    - "*.qmd"
+    - "*.ipynb"
     - "!notebooks/"
 website:
   title: "Machine Learnings"
