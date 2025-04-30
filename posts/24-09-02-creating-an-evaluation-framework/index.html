@@ -190,6 +190,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="callout callout-style-default callout-note callout-titled" title="Post Update">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Post Update
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Last updated: April 30, 2025</strong></p>
+<p>Minor updates to this post include: * Added a simple try it in Colab link.</p>
+</div>
+</div>
 <p>Here are links to the <a href="https://github.com/chuckfinca/machine_learnings/blob/main/posts/24-09-02-creating-an-evaluation-framework/index.ipynb">notebook</a> and <a href="https://github.com/chuckfinca/evaluate/tree/24-09-02-creating-an-evaluation-framework">evaluation framework</a> for this post. You can run the project in Google Colab using a L4 runtime.</p>
 <section id="preface" class="level2">
 <h2 class="anchored" data-anchor-id="preface">Preface</h2>
@@ -217,10 +231,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>To download our model we will use the Hugging Face Hub. This means that we will need to get and set a Hugging Face token to use in this project. Instructions for how to go about it can be found <a href="https://https://huggingface.co/docs/huggingface_hub/v0.23.3/en/quick-start">here</a>.</p>
 <p>Once we have our HF_TOKEN saved to our Google Colab secrets we can install and setup the Hugging Face Hub.</p>
-<div id="cell-8" class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-outputid="268de327-165e-4dce-aee3-6bfd44e41ba8">
+<div id="cell-9" class="cell" data-jupyter="{&quot;outputs_hidden&quot;:true}" data-outputid="268de327-165e-4dce-aee3-6bfd44e41ba8">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install huggingface_hub</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-9" class="cell" data-execution_count="2">
+<div id="cell-10" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Colab Secrets userdata module</span></span>
@@ -243,7 +257,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>My thinking was that if I could make it easy to run any model on any benchmark then I could use that framework in a pipeline that ran models through sets of existing and custom benchmarks alike.</p>
 <p>The framework uses an orchestrator pattern in which a benchmark specific orchestrator class (e.g.&nbsp;MMLUBenchmarkOrchestrator) facilitates the evaluation of a model on a benchmark.</p>
 <p>The heart of the MMLUBenchmarkOrchestrator is its subject evaluation function:</p>
-<div id="cell-14" class="cell">
+<div id="cell-15" class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -284,7 +298,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Calculates accuracy for the subject</li>
 </ol>
 <p>To see all this in action let’s import the project (at the appropriate commit tag <code>24-09-02-creating-an-evaluation-framework</code>):</p>
-<div id="cell-16" class="cell" data-outputid="3ebe4085-e957-4f6c-c90a-c6c323217142" data-execution_count="5">
+<div id="cell-17" class="cell" data-outputid="3ebe4085-e957-4f6c-c90a-c6c323217142" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>git clone <span class="op">--</span>branch <span class="dv">24</span><span class="op">-</span><span class="dv">0</span><span class="er">9</span><span class="op">-</span><span class="dv">0</span><span class="er">2</span><span class="op">-</span>creating<span class="op">-</span>an<span class="op">-</span>evaluation<span class="op">-</span>framework https:<span class="op">//</span>github.com<span class="op">/</span>chuckfinca<span class="op">/</span>evaluate </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Cloning into 'evaluate'...
@@ -298,7 +312,7 @@ Resolving deltas: 100% (150/150), done.</code></pre>
 </div>
 <p><strong><em>NOTE</em></strong>: At some point I intend to make my evaluation framework into a python package in order to simplify some of this, but we’ll save that work for a later date.</p>
 <p>The project has one dependency, so let’s import that:</p>
-<div id="cell-18" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
+<div id="cell-19" class="cell" data-outputid="fe0e211a-c9c7-4eaa-fd46-2ee7e82e7e9c" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install python<span class="op">-</span>dotenv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Collecting python-dotenv
@@ -314,7 +328,7 @@ Successfully installed python-dotenv-1.0.1</code></pre>
 <p>Now that we’ve got our evaluation framework ready to go we might as well spice things up! Let’s see if we can reproduce <a href="https://ai.meta.com/blog/meta-llama-3-1/#:~:text=of%20partner%20platforms.-,Model,-evaluations">Meta’s stated MMLU score</a> of 73.0 for Llama 3.1 8B!</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://scontent-sjc3-1.xx.fbcdn.net/v/t39.2365-6/452673884_1646111879501055_1352920258421649752_n.png?_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=e280be&amp;_nc_ohc=6j4zNvQHK_IQ7kNvgELs0sM&amp;_nc_ht=scontent-sjc3-1.xx&amp;oh=00_AYAIywC88BVcCAYMW5Tfs7zBMqJr2TQd_e7zcWaUt-rm-Q&amp;oe=66EDDF68" class="img-fluid figure-img"></p>
+<p><img src="https://scontent-mad2-1.xx.fbcdn.net/v/t39.2365-6/452673884_1646111879501055_1352920258421649752_n.png?_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=e280be&amp;_nc_ohc=jbwclMf1924Q7kNvwEmaXVO&amp;_nc_oc=AdnbWcaBNR_6qqMMO6WZw7WRj8Suak_7kJohmmCc5BTsHb4WYMcTSGOWdpFqSO6lTAE&amp;_nc_zt=14&amp;_nc_ht=scontent-mad2-1.xx&amp;_nc_gid=2OsrWO74bFPUeYeX76c3_Q&amp;oh=00_AfEXquuP3w1jm3GAili8ummS3eXq-Tc-pHzGA1-O8mmgwA&amp;oe=682B2868" class="img-fluid figure-img"></p>
 <figcaption>image</figcaption>
 </figure>
 </div>
@@ -331,7 +345,7 @@ Successfully installed python-dotenv-1.0.1</code></pre>
 <p>The framework is also setup to use the CPU if cuda is not available. This worked on my local machine, but was too slow to be of any practical use.</p>
 </blockquote>
 <p>Enough of that, let’s see the results!</p>
-<div id="cell-23" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
+<div id="cell-24" class="cell" data-outputid="4e3d9f4a-89f2-4837-bd8d-96460f94ee93" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python evaluate<span class="op">/</span>evaluate<span class="op">/</span>main.py <span class="op">--</span>benchmark mmlu <span class="op">--</span>model meta<span class="op">-</span>llama<span class="op">/</span>Meta<span class="op">-</span>Llama<span class="op">-</span><span class="fl">3.1</span><span class="op">-</span><span class="dv">8</span><span class="er">B</span><span class="op">-</span>Instruct <span class="op">--</span>nshot <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Benchmark 'mmlu' has been set up successfully.
@@ -406,7 +420,26 @@ Average accuracy: 66.600</code></pre>
 </div>
 <p><strong>Et voila!</strong> We have our score.</p>
 <p>Not what Meta reported, but not that far off either. I’ll leave the discrepancy for future posts :)</p>
-<p>Here are links to the <a href="https://github.com/chuckfinca/machine_learnings/blob/main/posts/24-09-02-creating-an-evaluation-framework/index.ipynb">notebook</a> and <a href="https://github.com/chuckfinca/evaluate/tree/24-09-02-creating-an-evaluation-framework">evaluation framework</a> for this post. Now go play!</p>
+<p>Here are links to the <a href="https://github.com/chuckfinca/machine_learnings/blob/main/posts/24-09-02-creating-an-evaluation-framework/index.ipynb">notebook</a> and <a href="https://github.com/chuckfinca/evaluate/tree/24-09-02-creating-an-evaluation-framework">evaluation framework</a> for this post.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Try it Yourself!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://colab.research.google.com/github/chuckfinca/machine_learnings/blob/main/posts/24-09-02-creating-an-evaluation-framework/index.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" class="img-fluid figure-img" alt="Open In Colab"></a></p>
+<figcaption>Open In Colab</figcaption>
+</figure>
+</div>
+<p>Click the badge above or <a href="https://colab.research.google.com/github/chuckfinca/machine_learnings/blob/main/posts/24-09-02-creating-an-evaluation-framework/index.ipynb">this link</a> to open and run the code from this post directly in Google Colab. You can experiment with the parameters and see the results live.</p>
+</div>
+</div>
 <p>Thanks for following along. If you’ve got a questions or comment please feel free to email me at <code>chuckfinca at gmail dot com</code>.</p>
 
 
