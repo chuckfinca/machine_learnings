@@ -254,7 +254,7 @@ Post Update
 <li><p>“You are a famous chef who has been given the following list of ingredients: {list}. Your task is to come up with the perfect dish for your client who likes: {note}. Respond with an explanation and then a detailed recipe”</p></li>
 <li><p>“list: {list}; note: {note}; response: explanation: …, recipe: …”</p></li>
 </ol>
-<p>There are infinite ways of prompting, and (much like <a href="https://en.wikipedia.org/wiki/Butterfly_effect">the butterfly effect</a>) subtle variations in the initial state can lead to large changes in output.</p>
+<p>There are infinite ways of prompting, and much like <a href="https://en.wikipedia.org/wiki/Butterfly_effect">the butterfly effect</a>, subtle variations in the initial state can lead to large changes in output.</p>
 <p>That’s where DSPy comes in. Rather than spending hours crafting a prompt through trial and error you automate the process by providing the known elements (in the example above 1. a list of ingredients 2. a note about preferences 3. a desired explanation about why a recipe is given 4. the recipe) and labeled training data which objectively evaluates whether an output is “right” or not. Then you use one of DSPy’s optimization methods to automatically come up with and evaluate many different versions of the prompt to determine the best one for your task / model pair.</p>
 </section>
 <section id="implementation" class="level3">
@@ -721,17 +721,16 @@ Note
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Try it Yourself!
+Try it yourself!
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="https://colab.research.google.com/github/chuckfinca/machine_learnings/blob/main/notebooks/24-12-14-beyond-manual-prompts/dspy_mmlu.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" class="img-fluid figure-img" alt="Open In Colab"></a></p>
-<figcaption>Open In Colab</figcaption>
-</figure>
+<div style="margin-top: 0.2rem;">
+<p>Click the badge below or <a href="https://colab.research.google.com/github/chuckfinca/machine_learnings/blob/main/notebooks/24-12-14-beyond-manual-prompts/dspy_mmlu.ipynb">this link</a> to open and run the code from this post directly in Google Colab. You can experiment with the parameters and see the results live.</p>
 </div>
-<p>Click the badge above or <a href="https://colab.research.google.com/github/chuckfinca/machine_learnings/blob/main/notebooks/24-12-14-beyond-manual-prompts/dspy_mmlu.ipynb">this link</a> to open and run the code from this post directly in Google Colab. You can experiment with the parameters and see the results live.</p>
+<div class="colab-button-container" style="text-align: left;">
+<p><a href="https://colab.research.google.com/github/chuckfinca/machine_learnings/blob/main/notebooks/24-12-14-beyond-manual-prompts/dspy_mmlu.ipynb" class="colab-button"> <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"> </a></p>
+</div>
 </div>
 </div>
 </section>
